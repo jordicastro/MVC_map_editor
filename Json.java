@@ -713,4 +713,15 @@ public abstract class Json
 			sb.append("null");
 		}
 	}
+	public Json marshal()
+	{
+		Json map = Json.newObject();
+		Json list_of_things = Json.newList();
+		map.add("things", list_of_things);
+		for (Thing t : this.things)
+		{
+			list_of_things.add(t.marshal());
+		}
+		return map; 
+	}
 }

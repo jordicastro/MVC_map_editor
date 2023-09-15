@@ -1,4 +1,5 @@
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -7,7 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.lang.Math;
 
-class Controller implements ActionListener, MouseListener, KeyListener
+class Controller implements ActionListener, MouseListener, KeyListener, MouseMotionListener
 {
 	View view;
 	Model model;
@@ -151,5 +152,17 @@ class Controller implements ActionListener, MouseListener, KeyListener
             model.dest_y += Model.speed;
 		if(keyUp)
             model.dest_y -= Model.speed;
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		//System.out.println("THE MOUSE MOVED ! ! !");
 	}
 }

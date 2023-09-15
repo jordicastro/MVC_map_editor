@@ -15,6 +15,7 @@ class View extends JPanel
 	Model model;
 	int randImageIndex;
 	BufferedImage selectedImage; 
+	int scrollX, scrollY;
 
 	View(Controller c, Model m)
 	{
@@ -29,6 +30,7 @@ class View extends JPanel
 
 		// Send mouse events to the controller
 		this.addMouseListener(c);
+		this.addMouseMotionListener(c);
 
 		// Load the images from the Game.Things array
 		images = new BufferedImage[Game.Things.length];
