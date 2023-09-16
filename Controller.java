@@ -7,6 +7,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.lang.Math;
+import java.io.IOException;
+import java.io.FileWriter;
 
 class Controller implements ActionListener, MouseListener, KeyListener, MouseMotionListener
 {
@@ -29,8 +31,18 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 
 	public void actionPerformed(ActionEvent e)
 	{
-		System.out.println("Hey! I said never push that button! This incident will be reported! (j/k)");
-		view.removeButton();
+		if (e.getSource() == view.loadB) // checks if the load button was clicked.
+		{
+			//load map: load the previously saved map from the JSON DOM - map.json.
+			model.loadMapFromJSON("map.json");
+			
+		}
+		else if (e.getSource() == view.saveB) // checks if the save button was clicked.
+		{
+			// save map - call the marshall class to store the exact x, y positions and kinds of every 'thing' in the map.
+			onSaveButtonClick();
+		}
+
 	}
 	
 	public void mousePressed(MouseEvent e)
@@ -164,5 +176,23 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
 		//System.out.println("THE MOUSE MOVED ! ! !");
+	}
+
+	/// PA 2:
+
+		// handle save button
+	public void onSaveButtonClick()
+	{
+		try
+		{
+			FileWriter writer = new FileWriter("map.json");
+			writer.write(this.model.marshall().toString());
+			writer.close();
+			System.out.println("Model saved to map.json");
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 }

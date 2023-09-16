@@ -9,7 +9,8 @@ import java.util.Random;
 
 class View extends JPanel
 {
-	JButton b1;
+	JButton loadB;
+	JButton saveB;
 	BufferedImage turtle_image;
 	BufferedImage images[];
 	Model model;
@@ -20,9 +21,13 @@ class View extends JPanel
 	View(Controller c, Model m)
 	{
 		// Make a button
-			// b1 = new JButton("Never push me!");
-			// b1.addActionListener(c);
-			// this.add(b1);
+
+		loadB = new JButton("Load");
+		loadB.addActionListener(c);
+		saveB = new JButton("Save");
+		saveB.addActionListener(c);
+		this.add(loadB);
+		this.add(saveB);
 
 		// Link up to other objects
 		c.setView(this);
@@ -100,8 +105,8 @@ class View extends JPanel
 	
 	void removeButton()
 	{
-		this.remove(this.b1);
-		this.repaint();
+		//this.remove(this.b1);
+		//this.repaint();
 	}
 
 	void updateSelectedImage()
