@@ -74,6 +74,7 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 			if (selectedImage != null)
 			{
 				Thing newThing = Thing.createThing(mouseX, mouseY, kind);
+
 				model.things.add(newThing);
 			}
 

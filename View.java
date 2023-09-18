@@ -6,7 +6,6 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import javax.swing.JButton;
 import java.awt.Color;
-import java.util.Random;
 
 class View extends JPanel
 {
@@ -16,6 +15,7 @@ class View extends JPanel
 	BufferedImage images[];
 	Model model;
 	int randImageIndex;
+	int currKindIndex;
 	BufferedImage selectedImage; 
 	static int scrollX, scrollY; // needed to expand the view.
 	int time;
@@ -31,6 +31,7 @@ class View extends JPanel
 		this.add(loadB);
 		this.add(saveB);
 		this.setFocusable(true); //required to detect Key Events in Controller.java!
+		currKindIndex = 0;
 		
 
 		loadB.setFocusable(false);
@@ -99,11 +100,15 @@ class View extends JPanel
 
 		for (Thing thing: model.things) // loop through the arraylist and print the things to the screen
 		{
+			if (thing instanceof Jumper) 
+			{
+				((Jumper) thing).updateTime(time); // Update time for each Jumper
+			}
 			int type = thing.getKind();
 			BufferedImage thingImage = images[type];
 			int thingW = thingImage.getWidth();
 			int thingH = thingImage.getHeight();
-			Point p = thing.getPos(this.time);
+			Point p = thing.getPos(time);
 			g.drawImage(thingImage,p.x - thingW / 2 - scrollX, p.y - thingH / 2 - scrollY, null);
 
 		}
@@ -114,7 +119,7 @@ class View extends JPanel
 		g.setColor(new Color (238,130,238));
 		g.fillRect(0, 0, 200, 200);
 
-		BufferedImage selectedImage = images[randImageIndex];
+		BufferedImage selectedImage = images[currKindIndex];
 		int selectedImageW = selectedImage.getWidth();
 		int selectedImageH = selectedImage.getHeight();
 		int selectedImageX = (200 - selectedImageW) / 2; // Centered horizontally
@@ -132,9 +137,10 @@ class View extends JPanel
 
 	void updateSelectedImage()
 	{
-		Random random = new Random();
-		randImageIndex = random.nextInt(images.length);
-		selectedImage = images[randImageIndex];
+		currKindIndex++;
+		if (currKindIndex >= images.length)
+			currKindIndex =0;
+		selectedImage = images[currKindIndex];
 	}
 	public BufferedImage getSelectedImage()
 	{
@@ -142,7 +148,7 @@ class View extends JPanel
 	}
 	public int getSelectedImageIndex()
 	{
-		return randImageIndex;
+		return currKindIndex;
 	}
 	
 	public BufferedImage getDefaultImage()

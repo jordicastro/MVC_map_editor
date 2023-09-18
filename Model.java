@@ -113,8 +113,8 @@ class Model
 				int x = Integer.parseInt(thingJson.getString("x")); // adjust for scrollX and scrollY : - view.getScrollX()
 				int y = Integer.parseInt(thingJson.getString("y")); // - view.getScrollY();
 
-				// adjust the positions based on scrollX and scrollY
-
+				
+				System.out.println("Loaded Thing - Kind: " + kind + ", X: " + x + ", Y: " + y);
 				// polymorphism: is it a JUMPER or a thing (turtle or not)? This call will find out:
 				Thing newThing = Thing.createThing(x, y, kind);
 				
@@ -145,7 +145,6 @@ class Thing
 	protected int x; // 'protected' KEYWORD, like 'private', prevents other functions from accessing without a getter function, BUT children CAN access these protected attributes.
 	protected int y;
 	protected int kind;
-	boolean isJumper = false;
 	Thing() // default constructor
 	{
 
@@ -181,7 +180,7 @@ class Thing
 
 	public static Thing createThing(int x, int y, int kind)
 	{
-		if ("turtle".equals(Integer.toString(kind)))
+		if (9 == kind)
 		{
 			return new Jumper(x, y, kind);
 			
@@ -196,20 +195,21 @@ class Thing
 
 class Jumper extends Thing
 {
-	private static int t = 0; // time
+	private int time; // time
 
 	Jumper(int x, int y, int kind)
 	{
 		this.x = x;
 		this.y = y;
 		this.kind = kind;
+		this.time = 0;
 		
 		
 	}
 	
-	public static void updateTime(int time)
+	public void updateTime(int time)
 	{
-		Jumper.t = time;
+		this.time = time;
 	}
 
 	
@@ -218,7 +218,7 @@ class Jumper extends Thing
 	public Point getPos(int t)
 	{
 		// t = view.getTime();
-		return new Point(this.x, this.y - (int)Math.max(0., 50 * Math.sin(((double)Jumper.t) / 5)));
+		return new Point(this.x, this.y - (int)Math.max(0., 50 * Math.sin(((double)this.time) / 5)));
 	}
 
 }
