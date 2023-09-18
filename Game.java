@@ -1,7 +1,6 @@
 import javax.swing.JFrame; // JFrame is part of the javax.swing namespace (FOLDER)
 import java.awt.Toolkit;
-// think of code as if it were a bunch of classes. objects are instantiation (new) of classes. 
-// method: functions that are inside the class.
+ 
 public class Game extends JFrame // Game(JFrame): all the Jframe methods are imported into Game. the JFrame class has window property functions
 {
 	Model model;
@@ -14,8 +13,9 @@ public class Game extends JFrame // Game(JFrame): all the Jframe methods are imp
 		model = new Model();
 		controller = new Controller(model);
 		view = new View(controller, model);
-		
-		System.out.println(view);
+	
+		// debug
+			// System.out.println(view);
 
 		// Set some window properties
 		this.setTitle("Map Editor!");
@@ -40,7 +40,7 @@ public class Game extends JFrame // Game(JFrame): all the Jframe methods are imp
 		"turtle",
 	};
 
-	public static void main(String[] args) // static means not in an object
+	public static void main(String[] args) // static means not an attribute of an object
 	{
 		Game g = new Game(); // g object is an instantiation of a Game class
 		g.run(); 
@@ -53,10 +53,10 @@ public class Game extends JFrame // Game(JFrame): all the Jframe methods are imp
 		{
 			controller.update();
 			model.update();
-			view.repaint(); // Indirectly calls View.paintComponent
-			Toolkit.getDefaultToolkit().sync(); // Updates screen
+			view.repaint(); // indirectly calls View.paintComponent
+			Toolkit.getDefaultToolkit().sync(); // updates screen
 
-			// Go to sleep for a brief moment
+			// Go to sleep for a brief moment (so it doesn't refresh screen too fast!)
 			try
 			{
 				Thread.sleep(25);

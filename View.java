@@ -11,19 +11,16 @@ class View extends JPanel
 {
 	JButton loadB;
 	JButton saveB;
-	BufferedImage turtle_image;
 	BufferedImage images[];
 	Model model;
-	int randImageIndex;
 	int currKindIndex;
 	BufferedImage selectedImage; 
-	static int scrollX, scrollY; // needed to expand the view.
+	static int scrollX, scrollY; // scroll values passed into controller to scroll based on keyboard input
 	int time;
 
 	View(Controller c, Model m)
 	{
-		// Make a button
-
+		// Make load and save buttons
 		loadB = new JButton("Load");
 		loadB.addActionListener(c);
 		saveB = new JButton("Save");
@@ -34,7 +31,7 @@ class View extends JPanel
 		currKindIndex = 0;
 		
 
-		loadB.setFocusable(false);
+		loadB.setFocusable(false); // these are FALSE
 		saveB.setFocusable(false);
 		// Link up to other objects
 		c.setView(this);
@@ -54,13 +51,7 @@ class View extends JPanel
 			images[i] = loadImages(imageName);
 		}
 
-		try
-		{
-			this.turtle_image = ImageIO.read(new File("images/turtle.png"));
-		} catch(Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(1);
-		}
+		
 
 		
 	}
@@ -82,25 +73,17 @@ class View extends JPanel
 	{
 
 		time++; // counts the number of times the update method has been called
-		//Jumper.updateTime(time); 
-		// Clear the background
-		g.setColor(new Color(64, 255, 128)); // green background.
+
+		// Green background
+		g.setColor(new Color(64, 255, 128)); 
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
-
-		// Draw the image so that its bottom center is at (x,y)
-		int w = this.turtle_image.getWidth();
-		int h = this.turtle_image.getHeight();
-		g.drawImage(this.turtle_image, model.turtle_x - w / 2, model.turtle_y - h, null);
-
-
-		
 
 		// paige est ici!!!!!! paige est tres super!!!
 
 
 		for (Thing thing: model.things) // loop through the arraylist and print the things to the screen
 		{
-			if (thing instanceof Jumper) 
+			if (thing instanceof Jumper)  // if the thing is of child type "Jumper", update time
 			{
 				((Jumper) thing).updateTime(time); // Update time for each Jumper
 			}
@@ -108,24 +91,29 @@ class View extends JPanel
 			BufferedImage thingImage = images[type];
 			int thingW = thingImage.getWidth();
 			int thingH = thingImage.getHeight();
-			Point p = thing.getPos(time);
+			Point p = thing.getPos(time); // getPos of thing p. this will either run the getPos default function or the getPos overloaded JUMPER function (based on the whether it is a type THING or type JUMPER)
 			g.drawImage(thingImage,p.x - thingW / 2 - scrollX, p.y - thingH / 2 - scrollY, null);
 
 		}
-		// purple box is drawn last so it is at the top of the image. i.e., objects do not overlap the purple box.
 
-		// Selector, including the purple box and the current selection
+
+		
+		// selector, including the purple box and the current selection
 			// purple box: scroll positions do not subtract, because we want the purple box to remain in the upper left corner of the screen at all times.
+				// purple box is drawn last so it is at the top of the image. i.e., objects do not overlap the purple box.
 		g.setColor(new Color (238,130,238));
 		g.fillRect(0, 0, 200, 200);
-
+		// selected image on top of the purple box
 		BufferedImage selectedImage = images[currKindIndex];
 		int selectedImageW = selectedImage.getWidth();
 		int selectedImageH = selectedImage.getHeight();
-		int selectedImageX = (200 - selectedImageW) / 2; // Centered horizontally
-		int selectedImageY = (200 - selectedImageH) / 2; // Centered vertically
+		int selectedImageX = (200 - selectedImageW) / 2; // centered horizontally
+		int selectedImageY = (200 - selectedImageH) / 2; // centered vertically
 		g.drawImage(selectedImage, selectedImageX, selectedImageY, null); // the selected image in the purple box.
 
+		// instructions for graders
+		g.setColor(Color.MAGENTA);
+		g.drawString("Scroll functionality with WASD and Arrow Keys!", 300, 60);
 		
 	}
 	
@@ -135,10 +123,10 @@ class View extends JPanel
 		//this.repaint();
 	}
 
-	void updateSelectedImage()
+	void updateSelectedImage() // iterates through the images in chronological order: 0, 1, 2,..., 9, 0, 1, 2...
 	{
 		currKindIndex++;
-		if (currKindIndex >= images.length)
+		if (currKindIndex >= images.length) //resets to zero after 9 (the largest index)
 			currKindIndex =0;
 		selectedImage = images[currKindIndex];
 	}
