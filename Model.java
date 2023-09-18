@@ -1,13 +1,15 @@
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.List;
+// import java.util.List;
+import java.awt.Point;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import org.json.JSONArray;
-import org.json.JSONObject;
+// import org.json.JSONArray; used if JSON library is installed. similarly, an alternate version of loadMapFromJSON() is used.
+// import org.json.JSONObject;
 
 class Model
 {
+	// View view; // REFERENCE to original view: scrollX, scrollY, and time values will be updated as the view progresses (I think)
 	int dest_x;
 	int dest_y;
 	int turtle_x;
@@ -17,34 +19,12 @@ class Model
 	static int speed = 10;
 	ArrayList<Thing> things;
 
-	Model()
+	Model() // <------------- pass in view to use scrollX, scrollY, and time (time is used in jumper class)
 	{
 		this.things = new ArrayList<Thing>();
 		this.dest_x = 0;
 		this.dest_y = 0;
 
-		// Add Thing object to things ArrayList
-			/* 
-			this.things.add(new Thing(dest_x, dest_y, 0)); // clicker destination
-			this.things.add(new Thing(300, 300, 1)); // chair location
-			this.things.add(new Thing(500, 500, 2)); // lamp 
-			this.things.add(new Thing(500, 800, 3)); // lettuce
-			this.things.add(new Thing(500, 800, 4)); // mushroom
-			this.things.add(new Thing(500, 800, 5)); // outhouse
-			this.things.add(new Thing(500, 800, 6)); // pillar
-			this.things.add(new Thing(500, 800, 7)); // pond
-			this.things.add(new Thing(500, 800, 8)); // robot
-			this.things.add(new Thing(500, 800, 9)); // rock
-			this.things.add(new Thing(500, 800, 10)); // statue
-			this.things.add(new Thing(500, 800, 11)); // tree
-			*/
-
-		// for (int i = 0; i < 10; i++) // random thing placement
-		// {
-		// 	int randX = random.nextInt(900) + 200; // 200 -> 989
-		// 	int randY = random.nextInt(900) + 200;
-		// 	this.things.add(new Thing(randX, randY, i));
-		// }
 
 
 	}
@@ -99,37 +79,58 @@ class Model
 		for (Thing t : this.things)
 		{
 			Json thingJson = Json.newObject();
-			thingJson.add("kind", t.getKind());
-			thingJson.add("x", t.getX());
-			thingJson.add("y", t.getY());
+			thingJson.add("kind", Integer.toString(t.getKind())); // integer to string so that loadMap from JSON is able to run
+			thingJson.add("x", Integer.toString(t.getX())); // more over, Json.getString() gets string kind, x, and y.
+			thingJson.add("y", Integer.toString(t.getY()));
 
 			list_of_things.add(thingJson);
 		}
 		map.add("things", list_of_things);
 		return map;
 	}
-	public void loadMapFromJSON(String filePath) // LOAD map
+	public void loadMapFromJSON(String filePath) // LOAD map / UNMARSHALL
 	{	
 		try
 		{
-			// read the contents of the JSON file using readAllBytes and .get(filePath)
-			// parse the String as a JSON object
+			//int scrollX = view.getScrollX();
+			//int scrollY = view.getScrollY();
+			// read the contents of the JSON file into one big String
 			String jsonString = new String(Files.readAllBytes(Paths.get(filePath))); 
-			JSONObject json = new JSONObject(jsonString);
-			JSONArray thingsArray = json.getJSONArray("things"); // GET things array from JSON and clear things list.
+
+			// parse the String as a JSON object -> JSON DOM
+			Json loadedJson = Json.parse(jsonString);
+			// access the "things" <array> field of the parsed Json object
+			Json thingsArray = loadedJson.get("things"); 
 
 			// clear things list in JSON
 			things.clear(); // basically clearing the map and adding the loaded map in the for loop
 
 			//for loop to iterate through each thing in the things section of the JSON object, GETTING / extracting kind, x, and y attributes.
-			for (int i = 0; i < thingsArray.length(); i++)
+			for (int i = 0; i < thingsArray.size(); i++) // UNMARSHALL DOM into ArrayList of things
 			{
-				JSONObject thingJson = thingsArray.getJSONObject(i);
-				int kind = thingJson.getInt("kind");
-				int x = thingJson.getInt("x");
-				int y = thingJson.getInt("y");
+				Json thingJson = thingsArray.get(i);
+				int kind = Integer.parseInt(thingJson.getString("kind"));
+				int x = Integer.parseInt(thingJson.getString("x")); // adjust for scrollX and scrollY : - view.getScrollX()
+				int y = Integer.parseInt(thingJson.getString("y")); // - view.getScrollY();
 
-				things.add(new Thing(x, y, kind));
+				// adjust the positions based on scrollX and scrollY
+
+				// polymorphism: is it a JUMPER or a thing (turtle or not)? This call will find out:
+				Thing newThing = Thing.createThing(x, y, kind);
+				
+				things.add(newThing);
+			}
+			//reset scrollX and scrollY to 0 after loading the map to make sure map is centered
+			// View.scrollX = 0;
+			// View.scrollY = 0;
+			System.out.println("loading the map!");
+
+			for (int i = 0; i < things.size(); i++)
+			{
+				System.out.println("KIND: " + things.get(i).getKind());
+				System.out.println("X: " + things.get(i).getX());
+				System.out.println("Y: " + things.get(i).getY());
+				System.out.println("\n");
 			}
 		}
 		catch(Exception e)
@@ -141,9 +142,14 @@ class Model
 
 class Thing
 {
-	public int x;
-	public int y;
-	public int kind;
+	protected int x; // 'protected' KEYWORD, like 'private', prevents other functions from accessing without a getter function, BUT children CAN access these protected attributes.
+	protected int y;
+	protected int kind;
+	boolean isJumper = false;
+	Thing() // default constructor
+	{
+
+	}
 
 	Thing(int x, int y, int kind) // overloaded constructor
 	{
@@ -166,6 +172,53 @@ class Thing
 	public int getY()
 	{
 		return y;
+	}
+
+	public Point getPos(int t)
+	{
+		return new Point(this.x, this.y);
+	}
+
+	public static Thing createThing(int x, int y, int kind)
+	{
+		if ("turtle".equals(Integer.toString(kind)))
+		{
+			return new Jumper(x, y, kind);
+			
+		}
+		else
+		{
+			return new Thing(x, y, kind);
+		}
+	}
+
+}
+
+class Jumper extends Thing
+{
+	private static int t = 0; // time
+
+	Jumper(int x, int y, int kind)
+	{
+		this.x = x;
+		this.y = y;
+		this.kind = kind;
+		
+		
+	}
+	
+	public static void updateTime(int time)
+	{
+		Jumper.t = time;
+	}
+
+	
+
+	@Override
+	public Point getPos(int t)
+	{
+		// t = view.getTime();
+		return new Point(this.x, this.y - (int)Math.max(0., 50 * Math.sin(((double)Jumper.t) / 5)));
 	}
 
 }

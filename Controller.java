@@ -22,11 +22,16 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 	Controller(Model m)
 	{
 		model = m;
+		view = new View(this, model);
+		view.addKeyListener(this);
+		System.out.println(view);
 	}
 
 	void setView(View v)
 	{
+		System.out.println("view set");
 		view = v;
+		System.out.println(view);
 	}
 
 	public void actionPerformed(ActionEvent e)
@@ -43,18 +48,23 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 			onSaveButtonClick();
 		}
 
+		System.out.println("inside action performed" + e);
+
 	}
 	
 	public void mousePressed(MouseEvent e)
 	{
-		int mouseX = e.getX();
-		int mouseY = e.getY();
+		int mouseX = e.getX() + View.scrollX; // offset the scroll to calibrate after scroll movement.;
+		int mouseY = e.getY() + View.scrollY;
+
+		System.out.println("inside mouse pressed" + e);
+
 		model.setDestination(mouseX, mouseY);
 		BufferedImage selectedImage = view.getDefaultImage();
 		int kind = view.getSelectedImageIndex();
 
 		// event: click is inside purple box
-		if ( (mouseX >= 0 && mouseX <= 200) && (mouseY >= 0 && mouseY <=200))
+		if ( (mouseX >= View.scrollX && mouseX <= View.scrollX + 200) && (mouseY >= View.scrollY && mouseY <= View.scrollY + 200))
 		{
 			view.updateSelectedImage();
 		}
@@ -63,7 +73,7 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 
 			if (selectedImage != null)
 			{
-				Thing newThing = new Thing(mouseX, mouseY, kind);
+				Thing newThing = Thing.createThing(mouseX, mouseY, kind);
 				model.things.add(newThing);
 			}
 
@@ -77,7 +87,7 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 			for(int i = 0; i < model.things.size(); i++)
 			{
 				Thing thing = model.things.get(i);
-				distance = Math.sqrt( ( Math.pow( (mouseX - thing.x), 2) + Math.pow( (mouseY - thing.y) ,2) ));
+				distance = Math.sqrt( ( Math.pow( (mouseX - thing.getX()), 2) + Math.pow( (mouseY - thing.getY()) ,2) ));
 
 				if (distance < minDistance)
 				{
@@ -91,7 +101,7 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 				model.things.remove(closestIndex);
 			}
 		}
-		view.repaint();
+		// view.repaint();
 	}
 
 	public void mouseReleased(MouseEvent e) 
@@ -106,41 +116,72 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 	public void mouseClicked(MouseEvent e) 
 	{	}
 	
-	public void keyPressed(KeyEvent e)
+	public void keyPressed(KeyEvent e) // adjusting scrollX and scrollY based on if arrow keys or 'asdf' keys are pressed.
 	{
+
+		System.out.println("key pressed event\n");
 		switch(e.getKeyCode())
 		{
-			case KeyEvent.VK_RIGHT: 
-				keyRight = true; 
-				break;
-			case KeyEvent.VK_LEFT: 
-				keyLeft = true; 
-				break;
+	
 			case KeyEvent.VK_UP: 
+			case KeyEvent.VK_W: 
 				keyUp = true; 
+				System.out.println("up arrow/w has been pressed... adjusting scrollY: " + View.scrollY);
+				View.scrollY -= Model.speed;
+				System.out.println("scrollY has been adjusted to scrollY:" + View.scrollY);
 				break;
+
+			case KeyEvent.VK_LEFT: 
+			case KeyEvent.VK_A: 
+				keyLeft = true; 
+				View.scrollX -= Model.speed;
+				break;
+
 			case KeyEvent.VK_DOWN: 
+			case KeyEvent.VK_S:
 				keyDown = true; 
+				View.scrollY += Model.speed;
+				break;
+
+			case KeyEvent.VK_RIGHT: // Arrow key functionality.
+			case KeyEvent.VK_D:    // ASDF functionality
+				keyRight = true; 
+				View.scrollX += Model.speed;
 				break;
 		}
 	}
 
-	public void keyReleased(KeyEvent e)
+	public void keyReleased(KeyEvent e) // reset the values of scrollX and scrollY when stop moving (button is released).
 	{
 		switch(e.getKeyCode())
 		{
-			case KeyEvent.VK_RIGHT: 
-				keyRight = false; 
-				break;
-			case KeyEvent.VK_LEFT: 
-				keyLeft = false; 
-				break;
+
 			case KeyEvent.VK_UP: 
+			case KeyEvent.VK_W:
+				System.out.print("Up or W has been UNPRESSED. updating scollY from " + View.scrollY);
 				keyUp = false; 
+				//View.scrollY = 0;
+				System.out.println(" to " + View.scrollY);
 				break;
+
+			case KeyEvent.VK_LEFT: 
+			case KeyEvent.VK_A:
+				keyLeft = false; 
+				//View.scrollX = 0;
+				break;
+
 			case KeyEvent.VK_DOWN: 
+			case KeyEvent.VK_S:
 				keyDown = false; 
+				//View.scrollY = 0;
 				break;
+
+			case KeyEvent.VK_RIGHT: 
+			case KeyEvent.VK_D:
+				keyRight = false; 
+				//View.scrollX = 0;
+				break;
+
 			case KeyEvent.VK_ESCAPE:
 				System.exit(0);
 		}
@@ -152,12 +193,16 @@ class Controller implements ActionListener, MouseListener, KeyListener, MouseMot
 	}
 
 	public void keyTyped(KeyEvent e)
-	{	}
+	{
+
+	}
 
 	void update()
 	{
-		if(keyRight) 
+		if(keyRight) {
             model.dest_x += Model.speed;
+			System.out.println("key right pressed");
+		}
 		if(keyLeft) 
     		model.dest_x -= Model.speed;
 		if(keyDown) 

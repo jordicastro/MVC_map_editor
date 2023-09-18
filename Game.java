@@ -15,6 +15,7 @@ public class Game extends JFrame // Game(JFrame): all the Jframe methods are imp
 		controller = new Controller(model);
 		view = new View(controller, model);
 		
+		System.out.println(view);
 
 		// Set some window properties
 		this.setTitle("Map Editor!");
