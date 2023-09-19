@@ -83,10 +83,7 @@ class View extends JPanel
 
 		for (Thing thing: model.things) // loop through the arraylist and print the things to the screen
 		{
-			if (thing instanceof Jumper)  // if the thing is of child type "Jumper", update time
-			{
-				((Jumper) thing).updateTime(time); // Update time for each Jumper
-			}
+			//thing.update(); // polymorphism
 			int type = thing.getKind();
 			BufferedImage thingImage = images[type];
 			int thingW = thingImage.getWidth();

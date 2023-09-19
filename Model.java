@@ -139,6 +139,7 @@ class Thing
 		this.x = x;
 		this.y = y;
 		this.kind = kind;
+
 	}
 
 	//getters
@@ -162,6 +163,11 @@ class Thing
 		return new Point(this.x, this.y);
 	}
 
+	public void update() // default update behavior for Thing (does nothing)
+	{
+		
+	}
+
 	public static Thing createThing(int x, int y, int kind)
 	{
 		if (9 == kind)
@@ -179,29 +185,19 @@ class Thing
 
 class Jumper extends Thing
 {
-	private int time; 
 
 	Jumper(int x, int y, int kind)
 	{
-		this.x = x;
-		this.y = y;
-		this.kind = kind;
-		this.time = 0;
+		super(x, y, kind);
 		
 		
 	}
 	
-	public void updateTime(int time)
-	{
-		this.time = time;
-	}
-
-	
-
+	// time inherited from Thing
 	@Override
-	public Point getPos(int t) // OVERRIDED default getPos() Thing method
+	public Point getPos(int t) // OVERRIDED default getPos() Thing method - JUMPS
 	{
-		return new Point(this.x, this.y - (int)Math.max(0., 50 * Math.sin(((double)this.time) / 5)));
+		return new Point(this.x, this.y - (int)Math.max(0., 50 * Math.sin(((double)t) / 5)));
 	}
 
 }
